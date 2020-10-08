@@ -495,6 +495,11 @@ lua_field_try_serialize(struct lua_State *L, struct luaL_serializer *cfg,
 {
 	if (luaL_getmetafield(L, idx, LUAL_SERIALIZE) == 0)
 		return 1;
+	if (field == field->previous) {
+		diag_set(LuajitError, "can't return the same value");
+		return -1;
+	}
+	field->previous = field;
 	if (lua_isfunction(L, -1)) {
 		/* copy object itself */
 		lua_pushvalue(L, idx);
