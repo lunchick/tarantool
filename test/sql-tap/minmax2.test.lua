@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(49)
 
 --!./tcltestrunner.lua
@@ -55,6 +55,8 @@ test:do_execsql_test(
         1, 2, 3, 4, 5
         -- </minmax2-1.0>
     })
+
+sql_search_count = 0 -- luacheck: globals sql_search_count
 
 test:do_test(
     "minmax2-1.1",

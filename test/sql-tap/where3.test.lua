@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(83)
 
 --!./tcltestrunner.lua
@@ -118,8 +118,8 @@ test:do_test(
 --
 local function queryplan(sql)
     -- sql_sort_count = 0
-    data = test:execsql(sql)
-    eqp = test:execsql("EXPLAIN QUERY PLAN "..sql)
+    local data = test:execsql(sql)
+    local eqp = test:execsql("EXPLAIN QUERY PLAN "..sql)
     for i,v in ipairs(eqp) do
         if i % 4 == 0 then
             local as, tab, idx = string.match(v, "TABLE (%w+AS )(%w+) USING.*INDEX (%w+)")
@@ -548,7 +548,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".1",
         function()
-            sql = "SELECT * FROM t6w NATURAL JOIN t6x NATURAL JOIN t6y"
+            local sql = "SELECT * FROM t6w NATURAL JOIN t6x NATURAL JOIN t6y"
             sql = sql .. " NATURAL JOIN t6z "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -559,7 +559,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".2",
         function()
-            sql = "SELECT * FROM t6w JOIN t6x USING(a) JOIN t6y USING(a)"
+            local sql = "SELECT * FROM t6w JOIN t6x USING(a) JOIN t6y USING(a)"
             sql = sql .. " JOIN t6z USING(a) "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -570,7 +570,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".3",
         function()
-            sql = "SELECT * FROM t6w NATURAL JOIN t6x JOIN t6y USING(a)"
+            local sql = "SELECT * FROM t6w NATURAL JOIN t6x JOIN t6y USING(a)"
             sql = sql .. " JOIN t6z USING(a) "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -581,7 +581,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".4",
         function()
-            sql = "SELECT * FROM t6w JOIN t6x USING(a) NATURAL JOIN t6y"
+            local sql = "SELECT * FROM t6w JOIN t6x USING(a) NATURAL JOIN t6y"
             sql = sql .. " JOIN t6z USING(a) "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -592,7 +592,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".5",
         function()
-            sql = "SELECT * FROM t6w JOIN t6x USING(a) JOIN t6y USING(a)"
+            local sql = "SELECT * FROM t6w JOIN t6x USING(a) JOIN t6y USING(a)"
             sql = sql .. " NATURAL JOIN t6z "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -603,7 +603,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".6",
         function()
-            sql = "SELECT * FROM t6w JOIN t6x USING(a) NATURAL JOIN t6y"
+            local sql = "SELECT * FROM t6w JOIN t6x USING(a) NATURAL JOIN t6y"
             sql = sql .. " NATURAL JOIN t6z "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -614,7 +614,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".7",
         function()
-            sql = "SELECT * FROM t6w NATURAL JOIN t6x JOIN t6y USING(a)"
+            local sql = "SELECT * FROM t6w NATURAL JOIN t6x JOIN t6y USING(a)"
             sql = sql .. " NATURAL JOIN t6z "
             sql = sql .. predicate
             return test:execsql(sql)
@@ -625,7 +625,7 @@ for cnt, predicate in ipairs(predicates) do
     test:do_test(
         "where3-6."..cnt..".8",
         function()
-            sql = "SELECT * FROM t6w NATURAL JOIN t6x NATURAL JOIN t6y"
+            local sql = "SELECT * FROM t6w NATURAL JOIN t6x NATURAL JOIN t6y"
             sql = sql .. " JOIN t6z USING(a) "
             sql = sql .. predicate
             return test:execsql(sql)

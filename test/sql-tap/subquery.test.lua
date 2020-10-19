@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(69)
 
 --!./tcltestrunner.lua
@@ -643,7 +643,8 @@ test:do_execsql_test(
 -- for a matching column name did not cause an otherwise static subquery
 -- to become a dynamic (correlated) subquery.
 --
-callcnt = 0
+
+callcnt = 0 -- luacheck: globals callcnt
 test:do_test(
     "subquery-5.1",
     function()

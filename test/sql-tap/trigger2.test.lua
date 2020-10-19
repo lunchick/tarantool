@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(26)
 
 --!./tcltestrunner.lua
@@ -61,8 +61,8 @@ test:plan(26)
 
 box.space._session_settings:update('sql_recursive_triggers', {{'=', 2, false}})
 -- 1.
-ii = 0
-tbl_definitions = { "CREATE TABLE tbl (id INT PRIMARY KEY AUTOINCREMENT, a INTEGER UNIQUE, b INT );",
+local ii = 0
+local tbl_definitions = { "CREATE TABLE tbl (id INT PRIMARY KEY AUTOINCREMENT, a INTEGER UNIQUE, b INT );",
                     "CREATE TABLE tbl (id INT PRIMARY KEY AUTOINCREMENT, a INT UNIQUE, b INT );",
                     "CREATE TABLE tbl (id INT PRIMARY KEY AUTOINCREMENT, a INT, b INT UNIQUE );",
                     "CREATE TABLE tbl (id INT PRIMARY KEY AUTOINCREMENT, a INT, b INTEGER UNIQUE );"}
@@ -121,9 +121,9 @@ for _, tbl_defn in ipairs(tbl_definitions) do
     test:do_test(
         "trigger2-1."..ii..".1",
         function()
-            r = {}
+            local r = {}
             test:execsql [[ UPDATE tbl SET a = a * 10, b = b * 10; ]]
-            raw_result = test:execsql [[
+            local raw_result = test:execsql [[
                 SELECT * FROM rlog ORDER BY idx;
             ]]
             for k,v in pairs(raw_result) do table.insert(r, v) end
@@ -164,7 +164,7 @@ for _, tbl_defn in ipairs(tbl_definitions) do
     test:do_test(
         "trigger2-1."..ii..".2",
         function()
-            r = {}
+            local r = {}
             for _, v in ipairs(test:execsql [[
                 DELETE FROM tbl ;
                 SELECT * FROM rlog;
@@ -351,7 +351,7 @@ test:catchsql [[
 --   DROP TABLE log;
 -- }
 -- trigger2-3.2: WHEN clause
-when_triggers = { "t1 BEFORE INSERT ON tbl FOR EACH ROW WHEN new.a > 20" }
+local when_triggers = { "t1 BEFORE INSERT ON tbl FOR EACH ROW WHEN new.a > 20" }
 table.insert(when_triggers,"t2 BEFORE INSERT ON tbl FOR EACH ROW WHEN (SELECT count(*) FROM tbl) = 0")
 
 

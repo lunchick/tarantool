@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(31)
 
 --!./tcltestrunner.lua
@@ -289,8 +289,8 @@ test:do_test(
     "misc5-7.1",
     function()
         test:execsql "CREATE TABLE t1(x  INT primary key)"
-        sql = "INSERT INTO t1 VALUES("
-        tail = ""
+        local sql = "INSERT INTO t1 VALUES("
+        local tail = ""
         for i = 0, 199, 1 do
             sql = sql .. "(1+"
             tail = tail .. ")"

@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(10641)
 
 --!./tcltestrunner.lua
@@ -152,10 +152,11 @@ for _, op1 in ipairs(oplist) do
     for _, op2 in ipairs(oplist) do
         untested[op1..","..op2] = 1
         for tn, val in ipairs(test_cases1) do
-            local A = val[2]
-            local B = val[3]
-            local C = val[4]
-            local testname = string.format("e_expr-1.%s.%s.%s", opname[op1], opname[op2], tn)
+            local A, B, C, testname
+            A = val[2]
+            B = val[3]
+            C = val[4]
+            testname = string.format("e_expr-1.%s.%s.%s", opname[op1], opname[op2], tn)
             -- If ?op2 groups more tightly than ?op1, then the result
             -- of executing ?sql1 whould be the same as executing ?sql.
             -- If ?op1 groups more tightly, or if ?op1 and ?op2 have
@@ -1078,18 +1079,18 @@ test:do_execsql_test(
 -- MUST_WORK_TEST prepared statements
 if (0>0) then
     local function parameter_test(tn, sql, params, result)
-        stmt = sql_prepare_v2("db", sql, -1)
+        local stmt = sql_prepare_v2("db", sql, -1)
         for _ in X(0, "X!foreach", [=[["number name",["params"]]]=]) do
-            nm = sql_bind_parameter_name(stmt, number)
+            local nm = sql_bind_parameter_name(stmt, number)
             X(480, "X!cmd", [=[["do_test",[["tn"],".name.",["number"]],[["list","set","",["nm"]]],["name"]]]=])
             sql_bind_int(stmt, number, ((-1) * number))
         end
         sql_step(stmt)
-        res = {  }
+        local res = {  }
         for _ in X(0, "X!for", [=[["set i 0","$i < [sql_column_count $stmt]","incr i"]]=]) do
             table.insert(res,sql_column_text(stmt, i))
         end
-        rc = sql_finalize(stmt)
+        local rc = sql_finalize(stmt)
         X(491, "X!cmd", [=[["do_test",[["tn"],".rc"],[["list","set","",["rc"]]],"sql_OK"]]=])
         X(492, "X!cmd", [=[["do_test",[["tn"],".res"],[["list","set","",["res"]]],["result"]]]=])
     end
@@ -1126,7 +1127,7 @@ if (0>0) then
     test:do_test(
         "e_expr-11.7.1",
         function()
-            stmt = sql_prepare_v2("db", " SELECT ?, :a, @b, ?d ", -1)
+            local stmt = sql_prepare_v2("db", " SELECT ?, :a, @b, ?d ", -1)
             sql_step(stmt)
             return { sql_column_type(stmt, 0), sql_column_type(stmt, 1), sql_column_type(stmt, 2), sql_column_type(stmt, 3) }
         end, {
@@ -2119,7 +2120,7 @@ test:do_execsql_test(
 -- calling the application-defined SQL functions like(Y,X) or like(Y,X,Z).
 --
 local likeargs = {}
-function likefunc(...)
+local function likefunc(...)
     local args = {...}
     for i, v in ipairs(args) do
         table.insert(likeargs, v)
@@ -2489,9 +2490,9 @@ test:do_execsql_test(
         -- </e_expr-20.2>
     })
 
-a = 0
-b = 0
-c = 0
+local a = 0
+local b = 0
+local c = 0
 local varlist = {  }
 local function var(nm)
     table.insert(varlist,nm)

@@ -22,25 +22,29 @@ ignore = {
 }
 
 include_files = {
-    "**/*.lua",
+    "extra/**/*.lua",
     "extra/dist/tarantoolctl.in",
+    "src/**/*.lua",
+    "static-build/**/*.lua",
+    "test/sql-tap/**/*.lua"
 }
 
 exclude_files = {
-    "build/**/*.lua",
-    -- Third-party source code.
     "src/box/lua/serpent.lua",
-    "test-run/**/*.lua",
-    "test/**/*.lua",
-    "third_party/**/*.lua",
-    ".rocks/**/*.lua",
-    ".git/**/*.lua",
+}
+
+files["test/sql-tap/**/*.lua"] = {
+    only = {
+        -- Setting an undefined global variable.
+        "111"
+    }
 }
 
 files["src/lua/help.lua"] = {
     -- Globals defined for interactive mode.
     globals = {"help", "tutorial"},
 }
+
 files["src/lua/init.lua"] = {
     -- Miscellaneous global function definition.
     globals = {"dostring"},

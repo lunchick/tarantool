@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(12)
 
 --!./tcltestrunner.lua
@@ -22,7 +22,7 @@ test:plan(12)
 
 -- Capture the output of a pragma in a TEMP table.
 --
-local function capture_pragma(db, tabname, sql)
+local function capture_pragma(db, tabname, sql) -- luacheck: ignore once
     once = 1
 end
 

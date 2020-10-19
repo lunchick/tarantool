@@ -1,5 +1,5 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(9)
 
 --!./tcltestrunner.lua
@@ -24,7 +24,7 @@ test:plan(9)
 -- A procedure to return a sequence of increasing integers.
 --
 
-counter = 0
+counter = 0 -- luacheck: globals counter
 
 -- Function is declared as deterministic deliberately.
 -- Otherwise it would be called as much as it occurs in a query.

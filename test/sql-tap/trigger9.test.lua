@@ -1,4 +1,5 @@
 #!/usr/bin/env tarantool
+-- luacheck: globals test
 test = require("sqltester")
 test:plan(28)
 
@@ -33,7 +34,7 @@ test:plan(28)
 -- ["source",[["testdir"],"\/tester.tcl"]]
 
 
-testprefix = "trigger9"
+local testprefix = "trigger9"
 
 local function has_rowdata(sql)
     local result = test:execsql('EXPLAIN '..sql)

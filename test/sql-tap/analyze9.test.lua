@@ -1,8 +1,8 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
+local test = require("sqltester")
 test:plan(121)
 
-testprefix = "analyze9"
+local testprefix = "analyze9"
 
 --!./tcltestrunner.lua
 -- 2013 August 3
@@ -46,8 +46,8 @@ test:do_execsql_test(
         -- </1.1>
     })
 
-msgpack_decode_sample = function(txt)
-    msgpack = require('msgpack')
+msgpack_decode_sample = function(txt) -- luacheck: globals msgpack_decode_sample
+    local msgpack = require('msgpack')
     local i = 1
     local decoded_str = ''
     while msgpack.decode(txt)[i] ~= nil do
@@ -134,14 +134,14 @@ test:do_test(
     })
 
 -- Analogue of function from tcl
-lindex = function(str, pos)
+lindex = function(str, pos) -- luacheck: globals lindex
     return string.sub(str, pos+1, pos+1)
 end
 
 box.internal.sql_create_function("lindex", "TEXT", lindex)
 
 -- Analogue of function from tcl
-lrange = function(str, first, last)
+lrange = function(str, first, last) -- luacheck: globals lrange
     local res_tokens = ""
     local i = 1
     for token in string.gmatch(str, "[^%s]+") do
@@ -159,16 +159,16 @@ end
 
 box.internal.sql_create_function("lrange", "TEXT", lrange)
 
-generate_tens = function(n)
-    tens = {}
+generate_tens = function(n) -- luacheck: globals generate_tens
+    local tens = {}
     for i = 1, n do
         tens[i] = 10
     end
     return tens
 end
 
-generate_tens_str = function(n)
-    tens = {}
+generate_tens_str = function(n) -- luacheck: globals generate_tens_str
+    local tens = {}
     for i = 1, n do
         tens[i] = "10"
     end
@@ -236,7 +236,7 @@ test:do_execsql_test(
         CREATE INDEX i1 ON t1(c, b, a);
     ]])
 
-insert_filler_rows_n = function(iStart, nCopy, nVal)
+insert_filler_rows_n = function(iStart, nCopy, nVal) -- luacheck: globals insert_filler_rows_n
     for i = 0, nVal-1 do
         local iVal = iStart+i
         for j = 0, nCopy-1 do
@@ -718,7 +718,7 @@ test:do_test(
             else
                 a = "\"DEF\""
             end
-            b = i % 5
+            local b = i % 5
             test:execsql(string.format("INSERT INTO t4 VALUES(null, '%s', '%s')", a, b))
         test:execsql("ANALYZE")
         end
@@ -769,7 +769,7 @@ test:do_test(
             else
                 a = "\"DEF\""
             end
-            b = i % 5
+            local b = i % 5
             test:execsql(string.format("INSERT INTO t4 VALUES(null, '%s', '%s')", a, b))
         test:execsql("ANALYZE")
         end
@@ -830,7 +830,7 @@ test:do_test(
             else
                 a = "\"DEF\""
             end
-            b = i % 5
+            local b = i % 5
             test:execsql(string.format("INSERT INTO t4 VALUES(null, 'abcdef', '%s', '%s')", a, b))
         test:execsql("ANALYZE")
         end
@@ -881,7 +881,7 @@ test:do_test(
             else
                 a = "\"DEF\""
             end
-            b = i % 5
+            local b = i % 5
             test:execsql(string.format("INSERT INTO t4 VALUES(null, 'abcdef', '%s', '%s')", a, b))
         test:execsql("ANALYZE")
         end
@@ -1246,7 +1246,7 @@ test:do_test(
 
 ---------------------------------------------------------------------------
 
-r = function()
+r = function() -- luacheck: globals r
     return math.random(1, 15)
 end
 
@@ -1376,7 +1376,7 @@ test:do_execsql_test(
     })
 
 
-int_to_char = function(i)
+int_to_char = function(i) -- luacheck: globals int_to_char
     local ret = ""
     local char = "abcdefghij"
     local divs = {1000, 100, 10, 1}

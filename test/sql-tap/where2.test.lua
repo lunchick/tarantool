@@ -1,9 +1,9 @@
 #!/usr/bin/env tarantool
-test = require("sqltester")
-yaml = require("yaml")
-fio = require("fio")
+local test = require("sqltester")
+local yaml = require("yaml")
+local fio = require("fio")
 
-ffi = require("ffi")
+local ffi = require("ffi")
 test:plan(74)
 
 ffi.cdef[[
@@ -42,10 +42,10 @@ test:do_test(
             START TRANSACTION;
         ]]
         for i=1,100 do
-            w = i
-            x = math.floor(math.log(i) / math.log(2))
-            y = (((i * i) + (2 * i)) + 1)
-            z = (x + y)
+            local w = i
+            local x = math.floor(math.log(i) / math.log(2))
+            local y = (((i * i) + (2 * i)) + 1)
+            local z = (x + y)
             test:execsql(string.format("INSERT INTO t1 VALUES(%s,%s,%s,%s)", w, x, y, z))
         end
         return test:execsql [[
@@ -213,10 +213,10 @@ test:do_test(
             CREATE TABLE x2(x INTEGER PRIMARY KEY);
             INSERT INTO x2 VALUES(1);
         ]]
-        sql = "SELECT * FROM x1, x2 WHERE x=1 ORDER BY random()"
-        out1 = test:execsql(sql)
-        out2 = test:execsql(sql)
-        out3 = test:execsql(sql)
+        local sql = "SELECT * FROM x1, x2 WHERE x=1 ORDER BY random()"
+        local out1 = test:execsql(sql)
+        local out2 = test:execsql(sql)
+        local out3 = test:execsql(sql)
         return ((out1 ~= out2) and (out2 ~= out3))
     end,
         -- <where2-2.4>
@@ -508,8 +508,7 @@ test:do_test(
 
 -- Verify that OR clauses get translated into IN operators.
 --
-idx = ""
-idx = "*"
+local idx = "*"
 
 
 test:do_test(
@@ -590,7 +589,6 @@ test:do_test(
         -- </where2-6.5>
     })
 
-idx = ""
 idx = "I1ZYX"
 
 
@@ -957,10 +955,10 @@ test:do_test(
         test:execsql('CREATE TABLE tx(id int PRIMARY KEY, w int, x int, y int, z int);')
         -- for _ in X(0, "X!for", [=[["set i 1","$i<=100","incr i"]]=]) do
         for i=1,100 do
-            w = i
-            x = math.floor(math.log(i) / math.log(2))
-            y = (((i * i) + (2 * i)) + 1)
-            z = (x + y)
+            local w = i
+            local x = math.floor(math.log(i) / math.log(2))
+            local y = (((i * i) + (2 * i)) + 1)
+            local z = (x + y)
             test:execsql(string.format("INSERT INTO tx VALUES(%s,%s,%s,%s,%s)", i, w, x, y, z))
         end
     end,
