@@ -375,7 +375,8 @@ struct index_def *
 index_def_new(uint32_t space_id, uint32_t iid, const char *name,
 	      uint32_t name_len, enum index_type type,
 	      const struct index_opts *opts,
-	      struct key_def *key_def, struct key_def *pk_def);
+	      struct key_def *key_def, struct key_def *pk_def,
+	      bool does_engine_support_optional_hints);
 
 /**
  * Create an array (on a region) of key_defs from list of index
