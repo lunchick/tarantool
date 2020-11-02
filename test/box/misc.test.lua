@@ -363,3 +363,14 @@ i.parts
 i = s:create_index('test6', {parts = {4, 'string'}})
 i.parts
 s:drop()
+
+--
+-- gh-5473: forbid specifying index options in key parts
+--
+--
+s = box.schema.space.create('test')
+i = s:create_index('test1', {parts = {1, 'unsigned', unique=false}})
+i = s:create_index('test1', {parts = {1, 'unsigned', distance=3}})
+i = s:create_index('test1', {parts = {2, 'string', 3, 'string', unique=false}})
+i = s:create_index('test1', {parts = {2, 'string', 3, 'string', distance=3}})
+s:drop()

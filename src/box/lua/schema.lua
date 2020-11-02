@@ -601,11 +601,20 @@ box.schema.index = {}
 
 local function update_index_parts_1_6_0(parts)
     local result = {}
-    if #parts % 2 ~= 0 then
+    if table.getn(parts) % 2 ~= 0 then
         box.error(box.error.ILLEGAL_PARAMS,
                   "options.parts: expected field_no (number), type (string) pairs")
     end
-    for i=1,#parts,2 do
+    local i = 0
+    for _ in pairs(parts) do
+        i = i + 1
+        if parts[i] == nil then
+            box.error(box.error.ILLEGAL_PARAMS,
+                      "options.parts: expected field_no (number), type (string) pairs")
+        end
+        if i % 2 == 0 then
+            goto continue
+        end
         if type(parts[i]) ~= "number" then
             box.error(box.error.ILLEGAL_PARAMS,
                       "options.parts: expected field_no (number), type (string) pairs")
@@ -619,6 +628,7 @@ local function update_index_parts_1_6_0(parts)
                       "options.parts: expected field_no (number), type (string) pairs")
         end
         table.insert(result, {field = parts[i] - 1, type = parts[i + 1]})
+        ::continue::
     end
     return result
 end
