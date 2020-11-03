@@ -83,7 +83,8 @@ runtime_tuple_new(struct tuple_format *format, const char *data, const char *end
 	if (tuple_field_map_create(format, data, true, &builder) != 0)
 		goto end;
 	uint32_t field_map_size = field_map_build_size(&builder);
-	uint32_t data_offset = sizeof(struct tuple) + field_map_size;
+	uint32_t data_offset = sizeof(struct tuple) + field_map_size +
+			       sizeof(uint32_t);
 	if (data_offset > INT16_MAX) {
 		/** tuple->data_offset is 15 bits */
 		diag_set(ClientError, ER_TUPLE_METADATA_IS_TOO_BIG,
@@ -92,8 +93,8 @@ runtime_tuple_new(struct tuple_format *format, const char *data, const char *end
 	}
 
 	size_t data_len = end - data;
-	size_t total = sizeof(struct tuple) + field_map_size + data_len;
-	tuple = (struct tuple *) smalloc(&runtime_alloc, total);
+	size_t total = data_offset + data_len;
+	tuple = (struct tuple *)smalloc(&runtime_alloc, total);
 	if (tuple == NULL) {
 		diag_set(OutOfMemory, (unsigned) total,
 			 "malloc", "tuple");
@@ -101,7 +102,7 @@ runtime_tuple_new(struct tuple_format *format, const char *data, const char *end
 	}
 
 	tuple->refs = 0;
-	tuple->bsize = data_len;
+	tuple_set_bsize(tuple, data_len);
 	tuple->format_id = tuple_format_id(format);
 	tuple_format_ref(format);
 	tuple->data_offset = data_offset;
@@ -610,7 +611,7 @@ size_t
 box_tuple_bsize(box_tuple_t *tuple)
 {
 	assert(tuple != NULL);
-	return tuple->bsize;
+	return tuple_bsize(tuple);
 }
 
 ssize_t

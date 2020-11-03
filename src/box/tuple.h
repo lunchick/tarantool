@@ -323,11 +323,6 @@ struct PACKED tuple
 	/** Format identifier. */
 	uint16_t format_id;
 	/**
-	 * Length of the MessagePack data in raw part of the
-	 * tuple.
-	 */
-	uint32_t bsize;
-	/**
 	 * Offset to the MessagePack from the begin of the tuple.
 	 */
 	uint16_t data_offset : 15;
@@ -338,18 +333,37 @@ struct PACKED tuple
 	 */
 	bool is_dirty : 1;
 	/**
+	* Length of the MessagePack data in raw part of the
+	* tuple.
+	*/
+	uint8_t bsize[];
+	/**
 	 * Engine specific fields and offsets array concatenated
 	 * with MessagePack fields array.
 	 * char raw[0];
 	 */
 };
 
+static inline void
+tuple_set_bsize(struct tuple *tuple, uint32_t bsize)
+{
+	assert(tuple != NULL);
+	*(uint32_t *)tuple->bsize = bsize;
+}
+
+static inline uint32_t
+tuple_bsize(struct tuple *tuple)
+{
+	assert(tuple != NULL);
+	return *(uint32_t *)tuple->bsize;
+}
+
 /** Size of the tuple including size of struct tuple. */
 static inline size_t
 tuple_size(struct tuple *tuple)
 {
 	/* data_offset includes sizeof(struct tuple). */
-	return tuple->data_offset + tuple->bsize;
+	return tuple->data_offset + tuple_bsize(tuple);
 }
 
 /**
@@ -381,7 +395,7 @@ tuple_data_or_null(struct tuple *tuple)
 static inline const char *
 tuple_data_range(struct tuple *tuple, uint32_t *p_size)
 {
-	*p_size = tuple->bsize;
+	*p_size = tuple_bsize(tuple);
 	return (const char *) tuple + tuple->data_offset;
 }
 

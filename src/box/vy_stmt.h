@@ -172,7 +172,7 @@ enum {
 struct vy_stmt {
 	struct tuple base;
 	int64_t lsn;
-	uint8_t  type; /* IPROTO_INSERT/REPLACE/UPSERT/DELETE */
+	uint8_t type; /* IPROTO_INSERT/REPLACE/UPSERT/DELETE */
 	uint8_t flags;
 	/**
 	 * Offsets array concatenated with MessagePack fields
@@ -185,42 +185,43 @@ struct vy_stmt {
 static inline int64_t
 vy_stmt_lsn(struct tuple *stmt)
 {
-	return ((struct vy_stmt *) stmt)->lsn;
+	return ((struct vy_stmt *)((void *)stmt + sizeof(uint32_t)))->lsn;
 }
 
 /** Set LSN of the vinyl statement. */
 static inline void
 vy_stmt_set_lsn(struct tuple *stmt, int64_t lsn)
 {
-	((struct vy_stmt *) stmt)->lsn = lsn;
+	((struct vy_stmt *)((void *)stmt + sizeof(uint32_t)))->lsn = lsn;
 }
 
 /** Get type of the vinyl statement. */
 static inline enum iproto_type
 vy_stmt_type(struct tuple *stmt)
 {
-	return (enum iproto_type)((struct vy_stmt *) stmt)->type;
+	return (enum iproto_type)((struct vy_stmt *)((void *)stmt +
+						     sizeof(uint32_t)))->type;
 }
 
 /** Set type of the vinyl statement. */
 static inline void
 vy_stmt_set_type(struct tuple *stmt, enum iproto_type type)
 {
-	((struct vy_stmt *) stmt)->type = type;
+	((struct vy_stmt *)((void *)stmt + sizeof(uint32_t)))->type = type;
 }
 
 /** Get flags of the vinyl statement. */
 static inline uint8_t
 vy_stmt_flags(struct tuple *stmt)
 {
-	return ((struct vy_stmt *)stmt)->flags;
+	return ((struct vy_stmt *)((void *)stmt + sizeof(uint32_t)))->flags;
 }
 
 /** Set flags of the vinyl statement. */
 static inline void
 vy_stmt_set_flags(struct tuple *stmt, uint8_t flags)
 {
-	((struct vy_stmt *)stmt)->flags = flags;
+	((struct vy_stmt *)((void *)stmt + sizeof(uint32_t)))->flags = flags;
 }
 
 /**
@@ -583,7 +584,7 @@ vy_stmt_upsert_ops(struct tuple *tuple, uint32_t *mp_size)
 	assert(vy_stmt_type(tuple) == IPROTO_UPSERT);
 	const char *mp = tuple_data(tuple);
 	mp_next(&mp);
-	*mp_size = tuple_data(tuple) + tuple->bsize - mp;
+	*mp_size = tuple_data(tuple) + tuple_bsize(tuple) - mp;
 	return mp;
 }
 
