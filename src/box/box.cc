@@ -305,10 +305,8 @@ box_wait_ro(bool ro, double timeout)
 {
 	double deadline = ev_monotonic_now(loop()) + timeout;
 	while (is_box_configured == false || box_is_ro() != ro) {
-		if (fiber_cond_wait_deadline(&ro_cond, deadline) != 0)
-			return -1;
-		if (fiber_is_cancelled()) {
-			diag_set(FiberIsCancelled);
+		if (fiber_cond_wait_deadline(&ro_cond, deadline) != 0) {
+			if (fiber_is_cancelled()) diag_set(FiberIsCancelled);
 			return -1;
 		}
 	}
