@@ -84,9 +84,9 @@ runtime_tuple_new(struct tuple_format *format, const char *data, const char *end
 		goto end;
 	uint32_t field_map_size = field_map_build_size(&builder);
 	uint32_t data_offset = sizeof(struct tuple) + field_map_size +
-			       sizeof(uint32_t);
+			       sizeof(uint32_t) + sizeof(uint16_t);
 	if (data_offset > INT16_MAX) {
-		/** tuple->data_offset is 15 bits */
+		/** tuple data_offset is 15 bits */
 		diag_set(ClientError, ER_TUPLE_METADATA_IS_TOO_BIG,
 			 data_offset);
 		goto end;
@@ -105,7 +105,7 @@ runtime_tuple_new(struct tuple_format *format, const char *data, const char *end
 	tuple_set_bsize(tuple, data_len);
 	tuple->format_id = tuple_format_id(format);
 	tuple_format_ref(format);
-	tuple->data_offset = data_offset;
+	tuple_set_data_offset(tuple, data_offset);
 	tuple->is_dirty = false;
 	char *raw = (char *) tuple + data_offset;
 	field_map_build(&builder, raw - field_map_size);

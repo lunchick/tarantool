@@ -135,7 +135,7 @@ test_run:cmd("push filter '[0-9.]+ sec' to '<sec> sec'")
 ...
 test_run:grep_log('test', 'waited for .* quota for too long.*')
 ---
-- 'waited for 1048611 bytes of vinyl memory quota for too long: <sec> sec'
+- 'waited for 1048613 bytes of vinyl memory quota for too long: <sec> sec'
 ...
 test_run:cmd("clear filter")
 ---
@@ -167,7 +167,7 @@ pad = string.rep('x', box.cfg.vinyl_memory)
 ...
 _ = s:auto_increment{pad}
 ---
-- error: Failed to allocate 1572899 bytes in lsregion for vinyl transaction
+- error: Failed to allocate 1572901 bytes in lsregion for vinyl transaction
 ...
 s:drop()
 ---

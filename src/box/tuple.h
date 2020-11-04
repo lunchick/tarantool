@@ -323,19 +323,18 @@ struct PACKED tuple
 	/** Format identifier. */
 	uint16_t format_id;
 	/**
-	 * Offset to the MessagePack from the begin of the tuple.
-	 */
-	uint16_t data_offset : 15;
-	/**
 	 * The tuple (if it's found in index for example) could be invisible
 	 * for current transactions. The flag means that the tuple must
 	 * be clarified by transaction engine.
 	 */
 	bool is_dirty : 1;
+	bool is_tiny : 1;
 	/**
-	* Length of the MessagePack data in raw part of the
-	* tuple.
-	*/
+	 * This variable size byte array contains length of the
+	 * MessagePack data in raw part of the tuple (first 1 or 4 bytes).
+	 * Then offset to the MessagePack from the begin of the tuple is
+	 * presented (1 or 2 bytes).
+	 */
 	uint8_t bsize[];
 	/**
 	 * Engine specific fields and offsets array concatenated
@@ -358,12 +357,26 @@ tuple_bsize(struct tuple *tuple)
 	return *(uint32_t *)tuple->bsize;
 }
 
+static inline void
+tuple_set_data_offset(struct tuple *tuple, uint16_t offset)
+{
+	assert(tuple != NULL);
+	*(uint16_t *)(tuple->bsize + sizeof(uint32_t)) = offset;
+}
+
+static inline uint16_t
+tuple_data_offset(struct tuple *tuple)
+{
+	assert(tuple != NULL);
+	return *(uint16_t *)(tuple->bsize + sizeof(uint32_t));
+}
+
 /** Size of the tuple including size of struct tuple. */
 static inline size_t
 tuple_size(struct tuple *tuple)
 {
 	/* data_offset includes sizeof(struct tuple). */
-	return tuple->data_offset + tuple_bsize(tuple);
+	return tuple_data_offset(tuple) + tuple_bsize(tuple);
 }
 
 /**
@@ -374,7 +387,7 @@ tuple_size(struct tuple *tuple)
 static inline const char *
 tuple_data(struct tuple *tuple)
 {
-	return (const char *) tuple + tuple->data_offset;
+	return (const char *)tuple + tuple_data_offset(tuple);
 }
 
 /**
@@ -396,7 +409,7 @@ static inline const char *
 tuple_data_range(struct tuple *tuple, uint32_t *p_size)
 {
 	*p_size = tuple_bsize(tuple);
-	return (const char *) tuple + tuple->data_offset;
+	return (const char *)tuple + tuple_data_offset(tuple);
 }
 
 /**
@@ -549,7 +562,8 @@ tuple_validate(struct tuple_format *format, struct tuple *tuple)
 static inline const uint32_t *
 tuple_field_map(struct tuple *tuple)
 {
-	return (const uint32_t *) ((const char *) tuple + tuple->data_offset);
+	return (const uint32_t *)((const char *)tuple +
+						tuple_data_offset(tuple));
 }
 
 /**

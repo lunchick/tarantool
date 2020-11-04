@@ -159,10 +159,10 @@ static struct tuple *
 vy_stmt_alloc(struct tuple_format *format, uint32_t data_offset, uint32_t bsize)
 {
 	assert(data_offset >= sizeof(struct vy_stmt) + format->field_map_size +
-			      sizeof(uint32_t));
+			      sizeof(uint32_t) + sizeof(uint16_t));
 
 	if (data_offset > INT16_MAX) {
-		/** tuple->data_offset is 15 bits */
+		/** tuple data_offset is 15 bits */
 		diag_set(ClientError, ER_TUPLE_METADATA_IS_TOO_BIG,
 			 data_offset);
 		return NULL;
@@ -198,7 +198,7 @@ vy_stmt_alloc(struct tuple_format *format, uint32_t data_offset, uint32_t bsize)
 	if (cord_is_main())
 		tuple_format_ref(format);
 	tuple_set_bsize(tuple, bsize);
-	tuple->data_offset = data_offset;
+	tuple_set_data_offset(tuple, data_offset);
 	tuple->is_dirty = false;
 	vy_stmt_set_lsn(tuple, 0);
 	vy_stmt_set_type(tuple, 0);
@@ -215,12 +215,12 @@ vy_stmt_dup(struct tuple *stmt)
 	 * the original tuple.
 	 */
 	struct tuple *res = vy_stmt_alloc(tuple_format(stmt),
-					  stmt->data_offset,
+					  tuple_data_offset(stmt),
 					  tuple_bsize(stmt));
 	if (res == NULL)
 		return NULL;
 	assert(tuple_size(res) == tuple_size(stmt));
-	assert(res->data_offset == stmt->data_offset);
+	assert(tuple_data_offset(res) == tuple_data_offset(stmt));
 	memcpy(res, stmt, tuple_size(stmt));
 	res->refs = 1;
 	return res;
@@ -282,11 +282,13 @@ vy_key_new(struct tuple_format *format, const char *key, uint32_t part_count)
 	uint32_t key_size = key_end - key;
 	uint32_t bsize = mp_sizeof_array(part_count) + key_size;
 	struct tuple *stmt = vy_stmt_alloc(format, sizeof(struct vy_stmt) +
-						   sizeof(uint32_t), bsize);
+						   sizeof(uint32_t) +
+						   sizeof(uint16_t), bsize);
 	if (stmt == NULL)
 		return NULL;
 	/* Copy MsgPack data */
-	char *raw = (char *)stmt + sizeof(struct vy_stmt) + sizeof(uint32_t);
+	char *raw = (char *)stmt + sizeof(struct vy_stmt) + sizeof(uint32_t) +
+							    sizeof(uint16_t);
 	char *data = mp_encode_array(raw, part_count);
 	memcpy(data, key, key_size);
 	assert(data + key_size == raw + bsize);
@@ -354,7 +356,7 @@ vy_stmt_new_with_ops(struct tuple_format *format, const char *tuple_begin,
 	size_t mpsize = (tuple_end - tuple_begin);
 	size_t bsize = mpsize + ops_size;
 	stmt = vy_stmt_alloc(format, sizeof(struct vy_stmt) + field_map_size +
-				     sizeof(uint32_t), bsize);
+			     sizeof(uint32_t) + sizeof(uint16_t), bsize);
 	if (stmt == NULL)
 		goto end;
 	/* Copy MsgPack data */
@@ -418,14 +420,17 @@ vy_stmt_replace_from_upsert(struct tuple *upsert)
 
 	/* Copy statement data excluding UPSERT operations */
 	struct tuple_format *format = tuple_format(upsert);
-	struct tuple *replace = vy_stmt_alloc(format, upsert->data_offset, bsize);
+	struct tuple *replace =
+		vy_stmt_alloc(format, tuple_data_offset(upsert), bsize);
 	if (replace == NULL)
 		return NULL;
 	/* Copy both data and field_map. */
-	char *dst = (char *)replace + sizeof(struct vy_stmt) + sizeof(uint32_t);
-	char *src = (char *)upsert + sizeof(struct vy_stmt) + sizeof(uint32_t);
-	memcpy(dst, src, upsert->data_offset + bsize - sizeof(struct vy_stmt) -
-						       sizeof(uint32_t));
+	char *dst = (char *)replace + sizeof(struct vy_stmt) +
+				      sizeof(uint32_t) + sizeof(uint16_t);
+	char *src = (char *)upsert + sizeof(struct vy_stmt) +
+				     sizeof(uint32_t) + sizeof(uint16_t);
+	memcpy(dst, src, tuple_data_offset(upsert) + bsize -
+	       sizeof(struct vy_stmt) - sizeof(uint32_t) - sizeof(uint16_t));
 	vy_stmt_set_type(replace, IPROTO_REPLACE);
 	vy_stmt_set_lsn(replace, vy_stmt_lsn(upsert));
 	return replace;
@@ -503,7 +508,7 @@ vy_stmt_new_surrogate_delete_raw(struct tuple_format *format,
 	uint32_t bsize = pos - data;
 	uint32_t field_map_size = field_map_build_size(&builder);
 	stmt = vy_stmt_alloc(format, sizeof(struct vy_stmt) + field_map_size +
-				     sizeof(uint32_t), bsize);
+			     sizeof(uint32_t) + sizeof(uint16_t), bsize);
 	if (stmt == NULL)
 		goto out;
 	char *stmt_data = (char *) tuple_data(stmt);

@@ -301,7 +301,7 @@ stat_diff(istat(), st)
 ---
 - put:
     rows: 25
-    bytes: 26425
+    bytes: 26475
   rows: 25
   run_avg: 1
   run_count: 1
@@ -318,7 +318,7 @@ stat_diff(istat(), st)
     dump:
       input:
         rows: 25
-        bytes: 26425
+        bytes: 26475
       count: 1
       output:
         bytes: 26049
@@ -350,7 +350,7 @@ stat_diff(istat(), st)
 ---
 - put:
     rows: 50
-    bytes: 52850
+    bytes: 52950
   bytes: 26042
   disk:
     last_level:
@@ -364,7 +364,7 @@ stat_diff(istat(), st)
     dump:
       input:
         rows: 50
-        bytes: 52850
+        bytes: 52950
       count: 1
       output:
         bytes: 52091
@@ -402,11 +402,11 @@ stat_diff(istat(), st)
 - cache:
     index_size: 49152
     rows: 1
-    bytes: 1057
+    bytes: 1059
     lookup: 1
     put:
       rows: 1
-      bytes: 1057
+      bytes: 1059
   lookup: 1
   disk:
     iterator:
@@ -418,13 +418,13 @@ stat_diff(istat(), st)
       lookup: 1
       get:
         rows: 1
-        bytes: 1057
+        bytes: 1059
   memory:
     iterator:
       lookup: 1
   get:
     rows: 1
-    bytes: 1057
+    bytes: 1059
 ...
 -- point lookup from cache
 st = istat()
@@ -440,14 +440,14 @@ stat_diff(istat(), st)
     lookup: 1
     put:
       rows: 1
-      bytes: 1057
+      bytes: 1059
     get:
       rows: 1
-      bytes: 1057
+      bytes: 1059
   lookup: 1
   get:
     rows: 1
-    bytes: 1057
+    bytes: 1059
 ...
 -- put in memory + cache invalidate
 st = istat()
@@ -461,18 +461,18 @@ stat_diff(istat(), st)
 - cache:
     invalidate:
       rows: 1
-      bytes: 1057
+      bytes: 1059
     rows: -1
-    bytes: -1057
+    bytes: -1059
   rows: 1
   memory:
     index_size: 49152
-    bytes: 1057
+    bytes: 1059
     rows: 1
   put:
     rows: 1
-    bytes: 1057
-  bytes: 1057
+    bytes: 1059
+  bytes: 1059
 ...
 -- point lookup from memory
 st = istat()
@@ -485,22 +485,22 @@ s:get(1) ~= nil
 stat_diff(istat(), st)
 ---
 - cache:
-    bytes: 1057
+    bytes: 1059
     lookup: 1
     rows: 1
     put:
       rows: 1
-      bytes: 1057
+      bytes: 1059
   memory:
     iterator:
       lookup: 1
       get:
         rows: 1
-        bytes: 1057
+        bytes: 1059
   lookup: 1
   get:
     rows: 1
-    bytes: 1057
+    bytes: 1059
 ...
 -- put in txw + point lookup from txw
 st = istat()
@@ -520,16 +520,16 @@ stat_diff(istat(), st)
 ---
 - txw:
     rows: 1
-    bytes: 1057
+    bytes: 1059
     iterator:
       lookup: 1
       get:
         rows: 1
-        bytes: 1057
+        bytes: 1059
   lookup: 1
   get:
     rows: 1
-    bytes: 1057
+    bytes: 1059
 ...
 box.rollback()
 ---
@@ -587,14 +587,14 @@ for i = 1, 100 do s:get(i) end
 stat_diff(istat(), st, 'cache')
 ---
 - rows: 14
-  bytes: 14798
+  bytes: 14826
   evict:
     rows: 86
-    bytes: 90902
+    bytes: 91074
   lookup: 100
   put:
     rows: 100
-    bytes: 105700
+    bytes: 105900
 ...
 -- range split
 for i = 1, 100 do put(i) end
@@ -650,14 +650,14 @@ stat_diff(istat(), st)
 ---
 - cache:
     rows: 13
-    bytes: 13741
+    bytes: 13767
     evict:
       rows: 37
-      bytes: 39109
+      bytes: 39183
     lookup: 1
     put:
       rows: 51
-      bytes: 53907
+      bytes: 54009
   disk:
     iterator:
       read:
@@ -668,23 +668,23 @@ stat_diff(istat(), st)
       lookup: 2
       get:
         rows: 100
-        bytes: 105700
+        bytes: 105900
   txw:
     iterator:
       lookup: 1
       get:
         rows: 50
-        bytes: 52850
+        bytes: 52950
   memory:
     iterator:
       lookup: 1
       get:
         rows: 100
-        bytes: 105700
+        bytes: 105900
   lookup: 1
   get:
     rows: 100
-    bytes: 105700
+    bytes: 105900
 ...
 box.rollback()
 ---
@@ -717,17 +717,17 @@ stat_diff(istat(), st)
     lookup: 1
     put:
       rows: 5
-      bytes: 5285
+      bytes: 5295
     get:
       rows: 5
-      bytes: 5285
+      bytes: 5295
   txw:
     iterator:
       lookup: 1
   lookup: 1
   get:
     rows: 5
-    bytes: 5285
+    bytes: 5295
 ...
 box.rollback()
 ---
@@ -772,7 +772,7 @@ _ = s:get(1)
 ...
 stat_diff(gstat(), st, 'memory.tuple_cache')
 ---
-- 1105
+- 1107
 ...
 s:delete(1)
 ---
@@ -1019,7 +1019,7 @@ istat()
       rows: 0
       bytes: 0
     lookup: 0
-    bytes: 13741
+    bytes: 13767
     get:
       rows: 0
       bytes: 0
@@ -1088,7 +1088,7 @@ istat()
   upsert:
     squashed: 0
     applied: 0
-  bytes: 316907
+  bytes: 317319
   put:
     rows: 0
     bytes: 0
@@ -1105,7 +1105,7 @@ istat()
         rows: 0
         bytes: 0
   memory:
-    bytes: 212607
+    bytes: 213019
     index_size: 49152
     rows: 206
     iterator:
@@ -1128,9 +1128,9 @@ gstat()
     gap_locks: 0
     read_views: 0
   memory:
-    tuple_cache: 14365
+    tuple_cache: 14391
     tx: 0
-    level0: 263174
+    level0: 263176
     page_index: 1250
     bloom_filter: 140
   disk:
@@ -1173,7 +1173,7 @@ box.snapshot()
 ...
 stat_diff(gstat(), st, 'scheduler')
 ---
-- dump_input: 103800
+- dump_input: 104000
   dump_output: 103592
   tasks_completed: 2
   dump_count: 1
@@ -1190,7 +1190,7 @@ box.snapshot()
 ...
 stat_diff(gstat(), st, 'scheduler')
 ---
-- dump_input: 10380
+- dump_input: 10400
   dump_output: 10411
   tasks_completed: 2
   dump_count: 1
@@ -1272,7 +1272,7 @@ st2 = i2:stat()
 ...
 s:bsize()
 ---
-- 53100
+- 53200
 ...
 i1:len(), i2:len()
 ---
@@ -1397,7 +1397,7 @@ st2 = i2:stat()
 ...
 s:bsize()
 ---
-- 106799
+- 106999
 ...
 i1:len(), i2:len()
 ---
