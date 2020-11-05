@@ -35,9 +35,13 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "bit/bit.h"
 #include "say.h"
+#include "tt_static.h"
 
 static int rfd;
+
+static uint64_t state[4];
 
 void
 random_init(void)
@@ -63,6 +67,8 @@ random_init(void)
 srand:
 	srandom(seed);
 	srand(seed);
+
+	random_bytes((char *)state, sizeof(state));
 }
 
 void
@@ -96,4 +102,83 @@ rand:
 	/* fill remaining bytes with PRNG */
 	while (generated < size)
 		buf[generated++] = rand();
+}
+
+uint64_t
+real_random(void)
+{
+	uint64_t result;
+	random_bytes((char *)&result, sizeof(result));
+	return result;
+}
+
+/**
+ * Helper function for the xoshiro256++ pseudo random generator:
+ * rotate left.
+ */
+static inline uint64_t
+rotl(uint64_t x, int k)
+{
+	return (x << k) | (x >> (64 - k));
+}
+
+/**
+ * xoshiro256++ pseudo random generator.
+ * http://prng.di.unimi.it/
+ * State is initialized with random_bytes().
+ *
+ * It is fast and doesn’t fail any known statistical test.
+ * About 2 times faster than conventional LCG rand() and
+ * mersenne-twister algorithms. Also both of them do fail
+ * some statistical tests.
+ * Here are some other reasons to choose xoshiro over
+ * mersenne-twister: https://arxiv.org/pdf/1910.06437.pdf
+ */
+uint64_t
+xoshiro_random(void)
+{
+	const uint64_t result = rotl(state[0] + state[3], 23) + state[0];
+	const uint64_t t = state[1] << 17;
+	state[2] ^= state[0];
+	state[3] ^= state[1];
+	state[1] ^= state[2];
+	state[0] ^= state[3];
+	state[2] ^= t;
+	state[3] = rotl(state[3], 45);
+	return result;
+}
+
+const char *
+xoshiro_state_str(void)
+{
+	return tt_sprintf("%llu %llu %llu %llu", (unsigned long long)state[0],
+						 (unsigned long long)state[1],
+						 (unsigned long long)state[2],
+						 (unsigned long long)state[3]);
+}
+
+int64_t
+real_random_in_range(int64_t min, int64_t max)
+{
+	assert(max >= min);
+	uint64_t range = (uint64_t)max - min;
+	uint64_t mask = UINT64_MAX >> bit_clz_u64(range | 1);
+	uint64_t result;
+	do {
+		result = real_random() & mask;
+	} while (result > range);
+	return min + result;
+}
+
+int64_t
+pseudo_random_in_range(int64_t min, int64_t max)
+{
+	assert(max >= min);
+	uint64_t range = (uint64_t)max - min;
+	uint64_t mask = UINT64_MAX >> bit_clz_u64(range | 1);
+	uint64_t result;
+	do {
+		result = xoshiro_random() & mask;
+	} while (result > range);
+	return min + result;
 }

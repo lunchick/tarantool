@@ -1,0 +1,12 @@
+	*** test_random_in_range ***
+pseudo_random_in_range(-9223372036854775808, -9223372036854775808) = -9223372036854775808
+real_random_in_range(-9223372036854775808, -9223372036854775808) = -9223372036854775808
+pseudo_random_in_range(9223372036854775807, 9223372036854775807) = 9223372036854775807
+real_random_in_range(9223372036854775807, 9223372036854775807) = 9223372036854775807
+pseudo_random_in_range(-1, -1) = -1
+real_random_in_range(-1, -1) = -1
+pseudo_random_in_range(0, 0) = 0
+real_random_in_range(0, 0) = 0
+pseudo_random_in_range(1, 1) = 1
+real_random_in_range(1, 1) = 1
+	*** test_random_in_range: done ***
