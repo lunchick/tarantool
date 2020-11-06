@@ -347,28 +347,28 @@ static inline void
 tuple_set_bsize(struct tuple *tuple, uint32_t bsize)
 {
 	assert(tuple != NULL);
-	*(uint32_t *)tuple->bsize = bsize;
+	store_u32(tuple->bsize, bsize);
 }
 
 static inline uint32_t
 tuple_bsize(struct tuple *tuple)
 {
 	assert(tuple != NULL);
-	return *(uint32_t *)tuple->bsize;
+	return load_u32(tuple->bsize);
 }
 
 static inline void
-tuple_set_data_offset(struct tuple *tuple, uint16_t offset)
+tuple_set_data_offset(struct tuple *tuple, uint16_t data_offset)
 {
 	assert(tuple != NULL);
-	*(uint16_t *)(tuple->bsize + sizeof(uint32_t)) = offset;
+	store_u16(tuple->bsize + sizeof(uint32_t), data_offset);
 }
 
 static inline uint16_t
 tuple_data_offset(struct tuple *tuple)
 {
 	assert(tuple != NULL);
-	return *(uint16_t *)(tuple->bsize + sizeof(uint32_t));
+	return load_u16(tuple->bsize + sizeof(uint32_t));
 }
 
 /** Size of the tuple including size of struct tuple. */
